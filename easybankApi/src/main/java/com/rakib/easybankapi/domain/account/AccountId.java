@@ -1,4 +1,4 @@
-package com.rakib.easybankapi.domain.Account;
+package com.rakib.easybankapi.domain.account;
 
 import com.rakib.easybankapi.domain.identifier.*;
 
