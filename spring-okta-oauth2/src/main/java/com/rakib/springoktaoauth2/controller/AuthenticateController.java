@@ -3,6 +3,7 @@ package com.rakib.springoktaoauth2.controller;
 import com.rakib.springoktaoauth2.model.AuthenticationResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -39,12 +41,17 @@ public class AuthenticateController {
                 .accessToken(client.getAccessToken().getTokenValue())
                 .refreshToken(Objects.requireNonNull(client.getRefreshToken()).getTokenValue())
                 .expiresAt(Objects.requireNonNull(client.getAccessToken().getExpiresAt()).getEpochSecond())
-                .authorityList(oidcUser.getAuthorities()
-                        .stream()
+                .authorityList(oidcUser.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
-                        .toList())
-                .build();
+                        .collect(Collectors.toList()))
+                .build();// Using Collectors.toList() for compatibility
         return new ResponseEntity<>(authenticationResponse, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('Admin')")
+    @GetMapping("secure/admin/hello")
+    public String adminHello() {
+        return "Hello, Admin! This endpoint is secured.";
     }
 
 }
