@@ -16,20 +16,16 @@ public class Auth0ManagementService {
 
     @Lookup
     public ManagementAPI managementAPI() {
-        return null; // Spring will override this method
-        // to return the prototype bean (Auth0TokenConfig#managementAPI)
+        return null; // Spring will override this method to return the prototype bean (Auth0TokenConfig#managementAPI)
     }
 
     public User createUser(User user) throws Exception {
-        ManagementAPI managementAPI = managementAPI();
-        logger.info("Using ManagementAPI new instance: {}", managementAPI);
-        Request<User> request = managementAPI.users().create(user);
+        Request<User> request = managementAPI().users().create(user);
         return request.execute();
     }
 
     public Organization createOrganization(Organization organization) throws Exception {
-        ManagementAPI managementAPI = managementAPI();
-        Request<Organization> request = managementAPI.organizations().create(organization);
+        Request<Organization> request = managementAPI().organizations().create(organization);
         return request.execute();
     }
 }
