@@ -4,14 +4,18 @@ import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.users.User;
 import com.rakib.auth0.model.AccessTokenRequest;
+import com.rakib.auth0.model.CreateOrganizationAndUserRequest;
 import com.rakib.auth0.service.Auth0ManagementService;
-import com.rakib.auth0.service.Auth0ManagementServiceImpl;
 import com.rakib.auth0.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth0")
@@ -53,6 +57,28 @@ public class Auth0Controller {
             return ResponseEntity.ok("Token is valid");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/organizations/{organizationId}/users/{userId}")
+    public ResponseEntity<String> addUserToOrganization(
+            @PathVariable String organizationId,
+            @PathVariable String userId) {
+        try {
+            auth0ManagementService.addUserToOrganization(organizationId, userId);
+            return ResponseEntity.ok("User added to organization successfully");
+        } catch (Auth0Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add user to organization: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/organizations-and-users")
+    public ResponseEntity<String> createOrganizationAndUser(@RequestBody CreateOrganizationAndUserRequest request) {
+        try {
+            auth0ManagementService.createOrganizationAndUser(request);
+            return ResponseEntity.ok("Organization and user created successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create organization and user: " + e.getMessage());
         }
     }
 }
