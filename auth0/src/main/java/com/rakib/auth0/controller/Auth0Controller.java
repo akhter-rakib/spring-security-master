@@ -5,6 +5,8 @@ import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.users.User;
 import com.rakib.auth0.model.AccessTokenRequest;
 import com.rakib.auth0.model.CreateOrganizationAndUserRequest;
+import com.rakib.auth0.model.CreateOrganizationRequest;
+import com.rakib.auth0.model.CreateUserRequest;
 import com.rakib.auth0.service.Auth0ManagementService;
 import com.rakib.auth0.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +28,9 @@ public class Auth0Controller {
     private final AuthUtils authUtils;
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody CreateUserRequest createUserRequest) {
         try {
-            User createdUser = auth0ManagementService.createUser(user);
+            User createdUser = auth0ManagementService.createUser(createUserRequest);
             return ResponseEntity.ok(createdUser);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -36,9 +38,9 @@ public class Auth0Controller {
     }
 
     @PostMapping("/organizations")
-    public ResponseEntity<Organization> createOrganization(@RequestBody Organization organization) {
+    public ResponseEntity<Organization> createOrganization(@RequestBody CreateOrganizationRequest organizationRequest) {
         try {
-            Organization createdOrganization = auth0ManagementService.createOrganization(organization);
+            Organization createdOrganization = auth0ManagementService.createOrganization(organizationRequest);
             return ResponseEntity.ok(createdOrganization);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);

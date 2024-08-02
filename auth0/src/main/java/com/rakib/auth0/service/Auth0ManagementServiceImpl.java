@@ -1,14 +1,14 @@
 package com.rakib.auth0.service;
 
 import com.auth0.client.mgmt.ManagementAPI;
-import com.auth0.client.mgmt.filter.ConnectionFilter;
 import com.auth0.exception.Auth0Exception;
-import com.auth0.json.mgmt.Connection;
 import com.auth0.json.mgmt.organizations.Members;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.rakib.auth0.model.CreateOrganizationAndUserRequest;
+import com.rakib.auth0.model.CreateOrganizationRequest;
+import com.rakib.auth0.model.CreateUserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
-import java.util.List;
 
 
 @Service
@@ -39,14 +38,21 @@ public class Auth0ManagementServiceImpl implements Auth0ManagementService {
     }
 
     @Override
-    public User createUser(User user) throws Exception {
+    public User createUser(CreateUserRequest userRequest) throws Exception {
+        User user = new User();
+        user.setName(userRequest.getName());
+        user.setEmail(userRequest.getEmail());
+        user.setPassword(userRequest.getPassword());
         user.setConnection(USERNAME_PASSWORD_AUTHENTICATION);
         Request<User> request = managementAPI().users().create(user);
         return request.execute();
     }
 
     @Override
-    public Organization createOrganization(Organization organization) throws Exception {
+    public Organization createOrganization(CreateOrganizationRequest organizationRequest) throws Exception {
+        Organization organization = new Organization();
+        organization.setName(organizationRequest.getName());
+        organization.setDisplayName(organizationRequest.getDisplayName());
         Request<Organization> request = managementAPI().organizations().create(organization);
         return request.execute();
     }
@@ -71,31 +77,24 @@ public class Auth0ManagementServiceImpl implements Auth0ManagementService {
         managementAPI().organizations().addMembers(organizationId, members).execute();
     }
 
-    public String getConnectionIdByName(String connectionName) throws Auth0Exception {
-        Request<List<Connection>> request = managementAPI().connections().list(new ConnectionFilter());
-        List<Connection> connections = request.execute();
-        for (Connection connection : connections) {
-            if (connection.getName().equals(connectionName)) {
-                return connection.getId();
-            }
-        }
-        throw new Auth0Exception("Connection not found: " + connectionName);
-    }
-
     @Override
     public void createOrganizationAndUser(CreateOrganizationAndUserRequest request) throws Exception {
         // Create the organization
-        Organization organization = new Organization();
-        organization.setName(request.getOrganizationName());
-        organization.setDisplayName(request.getOrganizationDisplayName());
-        Organization createdOrganization = createOrganization(organization);
+        CreateOrganizationRequest organizationRequest = CreateOrganizationRequest
+                .builder()
+                .displayName(request.getOrganizationDisplayName())
+                .name(request.getUserName())
+                .build();
+        Organization createdOrganization = createOrganization(organizationRequest);
 
         // Create the user
-        User user = new User();
-        user.setEmail(request.getUserEmail());
-        user.setName(request.getUserName());
-        user.setPassword(request.getPassword());
-        User createdUser = createUser(user);
+        CreateUserRequest userRequest = CreateUserRequest
+                .builder()
+                .email(request.getUserEmail())
+                .name(request.getUserName())
+                .password(request.getPassword())
+                .build();
+        User createdUser = createUser(userRequest);
 
         // Add the user to the organization
         addUserToOrganization(createdOrganization.getId(), createdUser.getId());
