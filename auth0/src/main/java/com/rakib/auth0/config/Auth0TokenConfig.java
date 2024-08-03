@@ -6,10 +6,13 @@ import com.auth0.json.auth.TokenHolder;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.aspectj.annotation.PrototypeAspectInstanceFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import java.time.Instant;
 
@@ -31,6 +34,7 @@ public class Auth0TokenConfig {
 
     private AuthAPI authAPI;
     private Instant tokenExpiryTime;
+    private Object SpringBea;
 
     @PostConstruct
     private void init() throws Exception {
@@ -63,7 +67,7 @@ public class Auth0TokenConfig {
     }
 
     @Bean
-    @Scope("prototype")
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ManagementAPI managementAPI() throws Exception {
         logger.info("Creating a new ManagementAPI instance with token: {}", managementApiToken);
         return new ManagementAPI(domain, getManagementApiToken());
