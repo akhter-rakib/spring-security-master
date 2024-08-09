@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class CreateOrganizationAndUserRequest {
+    /*In auth0 organization name can only contain lowercase alphanumeric characters, hyphens, and underscores */
     @Pattern(regexp = "^[a-z0-9_-]+$", message = "Name can only contain lowercase alphanumeric characters, hyphens, and underscores")
     private String organizationName;
     private String organizationDisplayName;
