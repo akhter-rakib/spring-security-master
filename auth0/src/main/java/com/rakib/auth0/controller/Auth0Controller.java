@@ -9,6 +9,7 @@ import com.rakib.auth0.model.CreateOrganizationRequest;
 import com.rakib.auth0.model.CreateUserRequest;
 import com.rakib.auth0.service.Auth0ManagementService;
 import com.rakib.auth0.utils.AuthUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class Auth0Controller {
     }
 
     @PostMapping("/organizations")
-    public ResponseEntity<Organization> createOrganization(@RequestBody CreateOrganizationRequest organizationRequest) {
+    public ResponseEntity<Organization> createOrganization(@Valid @RequestBody CreateOrganizationRequest organizationRequest) {
         try {
             Organization createdOrganization = auth0ManagementService.createOrganization(organizationRequest);
             return ResponseEntity.ok(createdOrganization);
@@ -75,7 +76,7 @@ public class Auth0Controller {
     }
 
     @PostMapping("/organizations-and-users")
-    public ResponseEntity<String> createOrganizationAndUser(@RequestBody CreateOrganizationAndUserRequest request) {
+    public ResponseEntity<String> createOrganizationAndUser(@Valid @RequestBody CreateOrganizationAndUserRequest request) {
         try {
             auth0ManagementService.createOrganizationAndUser(request);
             return ResponseEntity.ok("Organization and user created successfully");
