@@ -7,6 +7,7 @@ import com.rakib.auth0.model.AccessTokenRequest;
 import com.rakib.auth0.model.CreateOrganizationAndUserRequest;
 import com.rakib.auth0.model.CreateOrganizationRequest;
 import com.rakib.auth0.model.CreateUserRequest;
+import com.rakib.auth0.model.OktaUser;
 import com.rakib.auth0.service.Auth0ManagementService;
 import com.rakib.auth0.utils.AuthUtils;
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -94,6 +96,16 @@ public class Auth0Controller {
             return ResponseEntity.ok("Organizations successfully removed.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error removing organizations: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<OktaUser>> getAllUsers() {
+        try {
+            List<OktaUser> users = auth0ManagementService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Auth0Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
     }
 }
