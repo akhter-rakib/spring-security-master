@@ -89,7 +89,7 @@ public class Auth0Controller {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create organization and user: " + e.getMessage());
         }
     }
-    @DeleteMapping("/remove")
+    @DeleteMapping("/organizations")
     public ResponseEntity<String> removeOrganizations(@RequestBody List<String> organizationIds) {
         try {
             auth0ManagementService.removeOrganizations(organizationIds);
