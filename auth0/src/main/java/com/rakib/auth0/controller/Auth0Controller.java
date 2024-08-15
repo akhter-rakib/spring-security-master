@@ -13,12 +13,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth0")
@@ -82,6 +85,15 @@ public class Auth0Controller {
             return ResponseEntity.ok("Organization and user created successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create organization and user: " + e.getMessage());
+        }
+    }
+    @DeleteMapping("/remove")
+    public ResponseEntity<String> removeOrganizations(@RequestBody List<String> organizationIds) {
+        try {
+            auth0ManagementService.removeOrganizations(organizationIds);
+            return ResponseEntity.ok("Organizations successfully removed.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error removing organizations: " + e.getMessage());
         }
     }
 }

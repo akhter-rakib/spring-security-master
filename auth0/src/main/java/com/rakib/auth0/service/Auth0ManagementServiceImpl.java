@@ -19,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 
 @Service
@@ -98,6 +100,25 @@ public class Auth0ManagementServiceImpl implements Auth0ManagementService {
 
         // Add the user to the organization
         addUserToOrganization(createdOrganization.getId(), createdUser.getId());
+    }
+
+    @Override
+    public void removeOrganizations(List<String> organizationIds) {
+        List<String> failedOrganizations = new ArrayList<>();
+
+        organizationIds.forEach(organizationId -> {
+            try {
+                managementAPI().organizations().delete(organizationId).execute();
+                System.out.println("Organization with ID " + organizationId + " has been successfully removed.");
+            } catch (Exception e) {
+                System.out.println("Error deleting organization with ID " + organizationId + ": " + e.getMessage());
+                failedOrganizations.add(organizationId);
+            }
+        });
+
+        if (!failedOrganizations.isEmpty()) {
+            throw new RuntimeException("Failed to delete organizations: " + String.join(", ", failedOrganizations));
+        }
     }
 }
 
