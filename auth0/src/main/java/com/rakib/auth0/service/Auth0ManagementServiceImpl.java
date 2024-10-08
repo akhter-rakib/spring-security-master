@@ -1,14 +1,17 @@
 package com.rakib.auth0.service;
 
 import com.auth0.client.mgmt.ManagementAPI;
+import com.auth0.client.mgmt.filter.UserFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.organizations.Members;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.users.User;
+import com.auth0.json.mgmt.users.UsersPage;
 import com.auth0.net.Request;
 import com.rakib.auth0.model.CreateOrganizationAndUserRequest;
 import com.rakib.auth0.model.CreateOrganizationRequest;
 import com.rakib.auth0.model.CreateUserRequest;
+import com.rakib.auth0.model.OktaUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +22,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -99,6 +107,40 @@ public class Auth0ManagementServiceImpl implements Auth0ManagementService {
         // Add the user to the organization
         addUserToOrganization(createdOrganization.getId(), createdUser.getId());
     }
+
+    @Override
+    public void removeOrganizations(List<String> organizationIds) {
+        List<String> failedOrganizations = new ArrayList<>();
+
+        organizationIds.forEach(organizationId -> {
+            try {
+                managementAPI().organizations().delete(organizationId).execute();
+                System.out.println("Organization with ID " + organizationId + " has been successfully removed.");
+            } catch (Exception e) {
+                System.out.println("Error deleting organization with ID " + organizationId + ": " + e.getMessage());
+                failedOrganizations.add(organizationId);
+            }
+        });
+
+        if (!failedOrganizations.isEmpty()) {
+            throw new RuntimeException("Failed to delete organizations: " + String.join(", ", failedOrganizations));
+        }
+    }
+
+    @Override
+    public List<OktaUser> getAllUsers() throws Auth0Exception {
+        Request<UsersPage> request = managementAPI().users().list(new UserFilter());
+        UsersPage usersPage = request.execute();
+        return usersPage.getItems().stream()
+                .map(user -> OktaUser
+                        .builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .build())
+                .toList();
+    }
+
 }
 
 

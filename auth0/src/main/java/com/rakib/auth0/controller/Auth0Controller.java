@@ -7,17 +7,23 @@ import com.rakib.auth0.model.AccessTokenRequest;
 import com.rakib.auth0.model.CreateOrganizationAndUserRequest;
 import com.rakib.auth0.model.CreateOrganizationRequest;
 import com.rakib.auth0.model.CreateUserRequest;
+import com.rakib.auth0.model.OktaUser;
 import com.rakib.auth0.service.Auth0ManagementService;
 import com.rakib.auth0.utils.AuthUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth0")
@@ -38,7 +44,7 @@ public class Auth0Controller {
     }
 
     @PostMapping("/organizations")
-    public ResponseEntity<Organization> createOrganization(@RequestBody CreateOrganizationRequest organizationRequest) {
+    public ResponseEntity<Organization> createOrganization(@Valid @RequestBody CreateOrganizationRequest organizationRequest) {
         try {
             Organization createdOrganization = auth0ManagementService.createOrganization(organizationRequest);
             return ResponseEntity.ok(createdOrganization);
@@ -75,12 +81,31 @@ public class Auth0Controller {
     }
 
     @PostMapping("/organizations-and-users")
-    public ResponseEntity<String> createOrganizationAndUser(@RequestBody CreateOrganizationAndUserRequest request) {
+    public ResponseEntity<String> createOrganizationAndUser(@Valid @RequestBody CreateOrganizationAndUserRequest request) {
         try {
             auth0ManagementService.createOrganizationAndUser(request);
             return ResponseEntity.ok("Organization and user created successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create organization and user: " + e.getMessage());
+        }
+    }
+    @DeleteMapping("/organizations")
+    public ResponseEntity<String> removeOrganizations(@RequestBody List<String> organizationIds) {
+        try {
+            auth0ManagementService.removeOrganizations(organizationIds);
+            return ResponseEntity.ok("Organizations successfully removed.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error removing organizations: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<OktaUser>> getAllUsers() {
+        try {
+            List<OktaUser> users = auth0ManagementService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Auth0Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
     }
 }

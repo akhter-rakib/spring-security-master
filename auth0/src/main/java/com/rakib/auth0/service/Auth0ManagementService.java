@@ -6,6 +6,9 @@ import com.auth0.json.mgmt.users.User;
 import com.rakib.auth0.model.CreateOrganizationAndUserRequest;
 import com.rakib.auth0.model.CreateOrganizationRequest;
 import com.rakib.auth0.model.CreateUserRequest;
+import com.rakib.auth0.model.OktaUser;
+
+import java.util.List;
 
 public interface Auth0ManagementService {
 
@@ -18,4 +21,8 @@ public interface Auth0ManagementService {
     void addUserToOrganization(String organizationId, String userId) throws Auth0Exception;
 
     void createOrganizationAndUser(CreateOrganizationAndUserRequest request) throws Exception;
+
+    void removeOrganizations(List<String> organizationIds) throws Exception;
+
+    List<OktaUser> getAllUsers() throws Auth0Exception;
 }
